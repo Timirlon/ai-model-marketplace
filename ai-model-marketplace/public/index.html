@@ -1,23 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="https://github.com/Timirlon/ai-model-marketplace/blob/master/ai-model-marketplace/public/logo192.png" />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>AI Model Marketplace dApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+</head>
+<body>
+  <section>
+    <h2>List a New AI Model</h2>
+    <form id="listModelForm">
+      <input type="text" placeholder="Model Name" id="modelName">
+      <input type="text" placeholder="Description" id="modelDescription">
+      <input type="number" placeholder="Price (ETH)" id="modelPrice">
+      <button type="button" onclick="listModel()">List Model</button>
+    </form>
+  </section>
   
-    <link rel="manifest" href="https://github.com/Timirlon/ai-model-marketplace/blob/master/ai-model-marketplace/public/manifest.json" />
-    
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    
-  </body>
+  <section>
+    <h2>Purchase a Model</h2>
+    <form id="purchaseModelForm">
+      <input type="number" placeholder="Model ID" id="modelIdToPurchase">
+      <button type="button" onclick="purchaseModel()">Purchase Model</button>
+    </form>
+  </section>
+  
+  <section>
+    <h2>Rate a Model</h2>
+    <form id="rateModelForm">
+      <input type="number" placeholder="Model ID" id="modelIdToRate">
+      <input type="number" placeholder="Rating (1-5)" id="modelRating">
+      <button type="button" onclick="rateModel()">Rate Model</button>
+    </form>
+  </section>
+  
+  <section>
+    <h2>View Model Details</h2>
+    <form id="viewModelDetailsForm">
+      <input type="number" placeholder="Model ID" id="modelIdToView">
+      <button type="button" onclick="getModelDetails()">View Details</button>
+    </form>
+    <pre id="modelDetails"></pre>
+  </section>
+  
+  <section>
+    <h2>Withdraw Funds</h2>
+    <button type="button" onclick="withdrawFunds()">Withdraw Funds</button>
+  </section>
+
+  <script>
+    // Initialize web3 and contract
+    let web3;
+    let contract;
+
+    // Replace with your contract's address and ABI
+    const contractAddress = "0xD5B79fdf8ec4fbec0F053Aa7d24413fC0c7AB48F";
+    const contractABI = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "buyers",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "models",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address payable",
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "ratingSum",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "ratingCount",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "listModel",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "modelId",
+          "type": "uint256"
+        }
+      ],
+      "name": "purchaseModel",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function",
+      "payable": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "modelId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "rating",
+          "type": "uint8"
+        }
+      ],
+      "name": "rateModel",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawFunds",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "modelId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getModelDetails",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "averageRating",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    }
+  ];
+
+    window.onload = async () => {
+      if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.enable();
+        contract = new web3.eth.Contract(contractABI, contractAddress);
+      } else {
+        alert("Please install MetaMask to use this dApp!");
+      }
+    };
+
+    // List a new AI model
+    document.getElementById("listModelForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("modelName").value;
+      const description = document.getElementById("modelDescription").value;
+      const price = web3.utils.toWei(document.getElementById("modelPrice").value, "ether");
+
+      const accounts = await web3.eth.getAccounts();
+      try {
+        await contract.methods.listModel(name, description, price).send({ from: accounts[0] });
+        alert("Model listed successfully!");
+      } catch (error) {
+        console.error(error);
+        alert("Failed to list model.");
+      }
+    };
+
+    // Purchase a model
+    async function purchaseModel() {
+      const modelId = document.getElementById("purchaseModelId").value;
+      const accounts = await web3.eth.getAccounts();
+
+      try {
+        const price = await contract.methods.getModelPrice(modelId).call();
+        await contract.methods.purchaseModel(modelId).send({ from: accounts[0], value: price });
+        alert("Model purchased successfully!");
+      } catch (error) {
+        console.error(error);
+        alert("Failed to purchase model.");
+      }
+    }
+
+    // Rate a purchased model
+    async function rateModel() {
+      const modelId = document.getElementById("rateModelId").value;
+      const rating = document.getElementById("rating").value;
+      const accounts = await web3.eth.getAccounts();
+
+      try {
+        await contract.methods.rateModel(modelId, rating).send({ from: accounts[0] });
+        alert("Model rated successfully!");
+      } catch (error) {
+        console.error(error);
+        alert("Failed to rate model.");
+      }
+    }
+
+    // Withdraw funds
+    async function withdrawFunds() {
+      const accounts = await web3.eth.getAccounts();
+      try {
+        await contract.methods.withdrawFunds().send({ from: accounts[0] });
+        alert("Funds withdrawn successfully!");
+      } catch (error) {
+        console.error(error);
+        alert("Failed to withdraw funds.");
+      }
+    }
+
+    // Get model details
+    async function getModelDetails() {
+      const modelId = document.getElementById("viewModelId").value;
+
+      try {
+        const details = await contract.methods.getModelDetails(modelId).call();
+        document.getElementById("modelDetails").textContent = JSON.stringify(details, null, 2);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to fetch model details.");
+      }
+    }
+  </script>
+</body>
 </html>
