@@ -21,7 +21,11 @@ Functionality of the project mainly based on the implementation of five followin
 - Remix IDE
 
 ## Screenshots of Demo
-![]()
+![](https://github.com/Timirlon/dump/blob/main/blockchain-uni/screenshots/image%20(22).png)
+![](https://github.com/Timirlon/dump/blob/main/blockchain-uni/screenshots/image%20(23).png)
+![](https://github.com/Timirlon/dump/blob/main/blockchain-uni/screenshots/image%20(24).png)
+![](https://github.com/Timirlon/dump/blob/main/blockchain-uni/screenshots/image%20(25).png)
+![](https://github.com/Timirlon/dump/blob/main/blockchain-uni/screenshots/image%20(26).png)
 
 ## Development Team
 - Temirlan Turgimbayev
