@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Marketplace</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        button { padding: 10px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 250px; }
+        #models { margin-top: 20px; }
+    </style>
+</head>
+<body>
+<h1>AI Model Marketplace</h1>
+
+<button onclick="connectWallet()">Connect MetaMask</button>
+<p>Wallet Address: <span id="walletAddress">Not connected</span></p>
+<p>Token Balance: <span id="tokenBalance">0</span></p>
+
+<h2>List a Model</h2>
+<input id="modelName" placeholder="Model Name" /><br>
+<input id="modelDesc" placeholder="Description" /><br>
+<input id="modelPrice" type="number" placeholder="Price in Tokens" /><br>
+<input id="modelLink" placeholder="Model Link" /><br>
+<button onclick="listModel()">List Model</button>
+
+<h2>Available Models</h2>
+<div id="models"></div>
+
+<script>
+    let web3;
+    let contract;
+    let userAccount;
+
+    const contractAddress = "0x504D9F1F6697b41bae65a8902a5244a0055D12CD"; 
+    const contractABI = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "buyModel",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_name",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "_description",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_price",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "_modelLink",
+                    "type": "string"
+                }
+            ],
+            "name": "listModel",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_tokenAddress",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "price",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "seller",
+                    "type": "address"
+                }
+            ],
+            "name": "ModelListed",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "buyer",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "price",
+                    "type": "uint256"
+                }
+            ],
+            "name": "ModelPurchased",
+            "type": "event"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getModel",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_user",
+                    "type": "address"
+                }
+            ],
+            "name": "getTokenBalance",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "modelCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "models",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "price",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "seller",
+                    "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "modelLink",
+                    "type": "string"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "sold",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "token",
+            "outputs": [
+                {
+                    "internalType": "contract IERC20",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ]
+
+
+    async function connectWallet() {
+        if (window.ethereum) {
+            try {
+                // Request the user's accounts
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+
+                if (accounts.length === 0) {
+                    alert("No accounts found. Please ensure your MetaMask wallet is unlocked and an account is selected.");
+                    return;
+                }
+
+                userAccount = accounts[0];  // Get the first account
+                console.log("Connected Account:", userAccount);
+
+                document.getElementById("walletAddress").innerText = userAccount;
+
+                web3 = new Web3(window.ethereum);
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+
+                web3.eth.net.getId().then((networkId) => {
+                    console.log('Network ID:', networkId);
+                });
+                window.ethereum.request({ method: 'eth_chainId' })
+                    .then((chainId) => console.log("Connected to chain", chainId));
+                getTokenBalance();
+                loadModels();
+
+            } catch (error) {
+                console.error("Error connecting to MetaMask:", error);
+                alert("MetaMask connection failed. Please try again.");
+            }
+        } else {
+            alert("Please install MetaMask!");
+        }
+    }
+    async function getTokenBalance() {
+        const balance = await contract.methods.getTokenBalance(userAccount).call();
+        document.getElementById("tokenBalance").innerText = web3.utils.fromWei(balance, "ether");
+    }
+
+    async function listModel() {
+        const name = document.getElementById("modelName").value;
+        const description = document.getElementById("modelDesc").value;
+        const price = web3.utils.toWei(document.getElementById("modelPrice").value, "ether");
+        const link = document.getElementById("modelLink").value;
+
+        await contract.methods.listModel(name, description, price, link)
+            .send({ from: userAccount });
+
+        alert("Model listed!");
+        loadModels();
+    }
+
+    async function loadModels() {
+        const modelCount = await contract.methods.modelCount().call();
+        const modelsDiv = document.getElementById("models");
+        modelsDiv.innerHTML = "";
+
+        for (let i = 1; i <= modelCount; i++) {
+            const model = await contract.methods.models(i).call();
+
+            if (model.sold) {
+                modelsDiv.innerHTML += `
+                <p><strong>${model.name}</strong> - ${model.description} <br> Price: ${web3.utils.fromWei(model.price, "ether")} Tokens <br> Status: SOLD </p><hr>
+            `;
+            } else {
+                modelsDiv.innerHTML += `
+                <p><strong>${model.name}</strong> - ${model.description} <br> Price: ${web3.utils.fromWei(model.price, "ether")} Tokens <br> Seller: ${model.seller} <br><button onclick="buyModel(${model.id}, ${model.price})">Buy</button></p><hr>
+            `;
+            }
+        }
+    }
+
+    async function buyModel(id, price) {
+        try {
+            // Send the transaction to buy the model
+            const transaction = await contract.methods.buyModel(id)
+                .send({ from: userAccount });
+
+            const receipt = await web3.eth.getTransactionReceipt(transaction.transactionHash);
+
+            if (!receipt) {
+                alert("Transaction still pending, please wait a moment.");
+                return;
+            }
+
+            console.log("Transaction receipt:", receipt);
+            const updatedModel = await contract.methods.models(id).call();
+            console.log("Updated Model:", updatedModel);
+
+            if (updatedModel.sold) {
+                alert("Purchase successful!");
+                loadModels(); // Refresh the UI
+            } else {
+                alert("Purchase failed, please try again.");
+            }
+        } catch (error) {
+            console.error("Error buying model: ", error);
+            alert("An error occurred during the purchase.");
+        }
+    }
+</script>
+</body>
+</html>
