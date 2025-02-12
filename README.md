@@ -40,6 +40,11 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 - **Backend:** Node.js, Web3js
 
 # Demo screenshots
+![unavailable](https://github.com/Timirlon/blockchain-4/blob/main/media/demo1.png)
+![unavailable](https://github.com/Timirlon/blockchain-4/blob/main/media/demo2.png)
+![unavailable](https://github.com/Timirlon/blockchain-4/blob/main/media/demo3.png)
+![unavailable](https://github.com/Timirlon/blockchain-4/blob/main/media/demo4.png)
+![unavailable](https://github.com/Timirlon/blockchain-4/blob/main/media/token.png)
 
 ## How to Run the Project
 
