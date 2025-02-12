@@ -51,12 +51,12 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 ### Prerequisites
 - Node.js and npm installed
 - Metamask extension added to the browser
-- Ethereum test network access (e.g., Goerli, Sepolia)
+- Ethereum test network access 
 
 ### Steps
 1. **Clone the Repository:**
    ```sh
-   git clone <repository_url>
+   git clone <https://github.com/Timirlon/blockchain-4>
    cd blockchain-ai-marketplace
    ```
 2. **Install Dependencies:**
@@ -66,11 +66,6 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 3. **Start the Frontend:**
    ```sh
    npm start
-   ```
-4. **Deploy Smart Contracts (if not already deployed):**
-   - Use Hardhat or Truffle to deploy the ERC-20 token and marketplace smart contracts.
-   ```sh
-   npx hardhat run scripts/deploy.js --network goerli
    ```
 5. **Interact with the Marketplace:**
    - Connect Metamask.
