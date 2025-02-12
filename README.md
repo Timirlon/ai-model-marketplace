@@ -3,7 +3,7 @@
 ## Assignment 4 - Blockchain Technologies 1
 
 ### Overview
-This project is a blockchain-based AI Model Marketplace where users can buy and sell AI models using an ERC-20 token. It integrates functionalities developed in previous assignments, including an ERC-20 smart contract and an AI model marketplace, into a single product.
+This project is a blockchain-based AI Model Marketplace where users can buy and sell AI models using an ERC-20 token. It integrates functionalities developed in previous assignments, including an [ERC-20 smart contract](https://github.com/Timirlon/blockchain-4/blob/main/contracts/MyToken.sol) and an [AI model marketplace](https://github.com/Timirlon/blockchain-4/blob/main/contracts/AIModelMarketplace.sol), into a single product.
 
 ## Features
 
@@ -38,6 +38,7 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 - **Wallet Integration:** Metamask
 - **Frontend:** html, css, js
 - **Backend:** Node.js, Web3js
+- **Deployment:** [thirdweb.com]()
 
 # Demo screenshots
 ![unavailable](https://github.com/Timirlon/blockchain-4/blob/main/media/demo1.png)
@@ -56,8 +57,7 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 ### Steps
 1. **Clone the Repository:**
    ```sh
-   git clone <https://github.com/Timirlon/blockchain-4>
-   cd blockchain-ai-marketplace
+   git clone https://github.com/Timirlon/blockchain-4
    ```
 2. **Install Dependencies:**
    ```sh
@@ -67,7 +67,7 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
    ```sh
    npm start
    ```
-5. **Interact with the Marketplace:**
+4. **Interact with the Marketplace:**
    - Connect Metamask.
    - View AI models.
    - Purchase models using ERC-20 tokens.
@@ -83,5 +83,5 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 - Amirkhan Turgimbayev
 
 ## License 
-This project is for academic purposes and is not intended for commercial use and licensed under MIT license.
+This project is designed for academic purposes only and is not intended for commercial use and licensed under MIT license.
 
