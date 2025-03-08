@@ -3,7 +3,7 @@
 ## Assignment 4 - Blockchain Technologies 1
 
 ### Overview
-This project is a blockchain-based AI Model Marketplace where users can buy and sell AI models using an ERC-20 token. It integrates functionalities developed in previous assignments, including an [ERC-20 smart contract](https://github.com/Timirlon/blockchain-4/blob/main/contracts/MyToken.sol) and an [AI model marketplace](https://github.com/Timirlon/blockchain-4/blob/main/contracts/AIModelMarketplace.sol), into a single product.
+This project is a blockchain-based AI Model Marketplace where users can buy and sell AI models using an ERC-20 token. It integrates functionalities developed in previous assignments, including an [ERC-20 smart contract](https://github.com/Timirlon/blockchain-4/blob/main/contracts/MyToken.sol) and an [AI model marketplace](https://github.com/Timirlon/blockchain-4/blob/main/contracts/AIModelMarketplace.sol), into a single product. Now, users are provided with possibility of purchasing AI models and even listing their own on our platform using our very own token - EATKN.
 
 ## Features
 
@@ -52,36 +52,34 @@ This project is a blockchain-based AI Model Marketplace where users can buy and 
 ### Prerequisites
 - Node.js and npm installed
 - Metamask extension added to the browser
-- Ethereum test network access 
+- EATKN tokens on your Metamask wallet balance are required for functions to work properly
 
 ### Steps
 1. **Clone the Repository:**
    ```sh
-   git clone https://github.com/Timirlon/blockchain-4
+   git clone https://github.com/Timirlon/ai-model-marketplace
    ```
 2. **Install Dependencies:**
    ```sh
    npm install
    ```
-3. **Start the Frontend:**
+3. **Launch server locally:**
    ```sh
-   npm start
+   npx http-server -p 3000
    ```
 4. **Interact with the Marketplace:**
-   - Connect Metamask.
+   - Connect Metamask wallet.
    - View AI models.
    - Purchase models using ERC-20 tokens.
    - List new models for sale.
 
-## Future Improvements
-- Implement additional security features for transactions.
-- Optimize gas fees for smart contract operations.
-- Enhance UI/UX for a better user experience.
+## References
+- Thirdweb deployment - thirdweb.com
 
 ## Contributors
 - Temirlan Turgimbayev
 - Amirkhan Turgimbayev
 
 ## License 
-This project is designed for academic purposes only and is not intended for commercial use and licensed under MIT license.
+This project is designed for academic purposes only and is not intended for commercial use. Licensed under MIT License.
 
